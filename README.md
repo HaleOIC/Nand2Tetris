@@ -3,7 +3,7 @@ This repository contains the course &lt; Build a Modern Computer from First Prin
 
 Task standard need time : 40 h
 
-My total used time : 
+My total used time : （video time & lab time）
 
-week1: 
+week1: 4 + 
 

@@ -1,0 +1,67 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux8Way.hdl
+
+/**
+ * 8-way demultiplexor:
+ * {a, b, c, d, e, f, g, h} = {in, 0, 0, 0, 0, 0, 0, 0} if sel == 000
+ *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
+ *                            etc.
+ *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
+ */
+
+CHIP DMux8Way {
+    IN in, sel[3];
+    OUT a, b, c, d, e, f, g, h;
+
+    PARTS:
+    // Put your code here:
+
+    // let x = sel[2], y = sel[1], z = sel[0];
+
+    Not ( in = sel[2], out = Notx );
+    Not ( in = sel[1], out = Noty );
+    Not ( in = sel[0], out = Notz );
+
+    And ( a = sel[2], b = sel[2], out = x );
+    And ( a = sel[1], b = sel[1], out = y );
+    And ( a = sel[0], b = sel[0], out = z );
+
+
+    // calculate the minimum term
+    And ( a = Notx, b = Noty, out = tmp0 );
+    And ( a = tmp0, b = Notz, out = ans0 );
+
+    And ( a = Notx, b = Noty, out = tmp1 );
+    And ( a = tmp1, b = z, out = ans1 );
+
+    And ( a = Notx, b = y, out = tmp2 );
+    And ( a = tmp2, b = Notz, out = ans2 );
+
+    And ( a = Notx, b = y, out = tmp3 );
+    And ( a = tmp3, b = z, out = ans3 );
+
+    And ( a = x, b = Noty, out = tmp4 );
+    And ( a = tmp4, b = Notz, out = ans4 );
+
+    And ( a = x, b = Noty, out = tmp5 );
+    And ( a = tmp5, b = z, out = ans5 );
+
+    And ( a = x, b = y, out = tmp6 );
+    And ( a = tmp6, b = Notz, out = ans6 );
+
+    And ( a = x, b = y, out = tmp7 );
+    And ( a = tmp7, b = z, out = ans7 );
+
+    // output the value;
+    Mux ( a = false, b = in, sel = ans0, out = a );
+    Mux ( a = false, b = in, sel = ans1, out = b );
+    Mux ( a = false, b = in, sel = ans2, out = c );
+    Mux ( a = false, b = in, sel = ans3, out = d );
+    Mux ( a = false, b = in, sel = ans4, out = e );
+    Mux ( a = false, b = in, sel = ans5, out = f );
+    Mux ( a = false, b = in, sel = ans6, out = g );
+    Mux ( a = false, b = in, sel = ans7, out = h );
+    
+}

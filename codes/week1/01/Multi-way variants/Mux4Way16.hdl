@@ -1,0 +1,57 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux4Way16.hdl
+
+/**
+ * 4-way 16-bit multiplexor:
+ * out = a if sel == 00
+ *       b if sel == 01
+ *       c if sel == 10
+ *       d if sel == 11
+ */
+
+CHIP Mux4Way16 {
+    IN a[16], b[16], c[16], d[16], sel[2];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+    // let x = sel[0], y = sel[1];
+
+
+    // preparation work;
+    Xor ( a = sel[0], b = sel[1], out = xXory );
+    And ( a = sel[0], b = sel[1], out = xAndy );
+    Not ( in = xAndy, out = NotxAndy );
+    Not ( in = xXory, out = NotxXory );
+
+    // ans[0] = ~(x^y)&~(x&y)
+    And ( a = NotxXory, b = NotxAndy, out = ans0 );
+
+    // ans[1] = (x^y)&y
+    And ( a = xXory, b = sel[0], out = ans1 );
+
+    // ans[2] = (x^y)&x
+    And ( a = xXory, b = sel[1], out = ans2 );
+
+    // ans[3] = ~(x^y)&(x&y);
+    And ( a = NotxXory, b = xAndy, out = ans3 );
+
+    // if ans[0] => out = a;
+    Mux16 ( a[0..15] = false,  b = a[0..15], sel = ans0, out = out0 );
+
+    // if ans[1] => out = b;
+    Mux16 ( a[0..15] = false, b = b[0..15], sel = ans1, out = out1 );
+
+    // if ans[2] => out = c;
+    Mux16 ( a[0..15] = false, b = c[0..15], sel = ans2, out = out2 );
+
+    // if ans[3] => out = d;
+    Mux16 ( a[0..15] = false, b = d[0..15], sel = ans3, out = out3 );
+
+    // output the ans
+    Or16 ( a = out0, b = out1, out = out4 );
+    Or16 ( a = out2, b = out3, out = out5 );
+    Or16 ( a = out4, b = out5, out = out );
+}

@@ -1,0 +1,74 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux8Way16.hdl
+
+/**
+ * 8-way 16-bit multiplexor:
+ * out = a if sel == 000
+ *       b if sel == 001
+ *       etc.
+ *       h if sel == 111
+ */
+
+CHIP Mux8Way16 {
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+
+    Not ( in = sel[2], out = Notx );
+    Not ( in = sel[1], out = Noty );
+    Not ( in = sel[0], out = Notz );
+
+    And ( a = sel[2], b = sel[2], out = x );
+    And ( a = sel[1], b = sel[1], out = y );
+    And ( a = sel[0], b = sel[0], out = z );
+
+
+    // calculate the minimum term
+    And ( a = Notx, b = Noty, out = tmp0 );
+    And ( a = tmp0, b = Notz, out = out0 );
+
+    And ( a = Notx, b = Noty, out = tmp1 );
+    And ( a = tmp1, b = z, out = out1 );
+
+    And ( a = Notx, b = y, out = tmp2 );
+    And ( a = tmp2, b = Notz, out = out2 );
+
+    And ( a = Notx, b = y, out = tmp3 );
+    And ( a = tmp3, b = z, out = out3 );
+
+    And ( a = x, b = Noty, out = tmp4 );
+    And ( a = tmp4, b = Notz, out = out4 );
+
+    And ( a = x, b = Noty, out = tmp5 );
+    And ( a = tmp5, b = z, out = out5 );
+
+    And ( a = x, b = y, out = tmp6 );
+    And ( a = tmp6, b = Notz, out = out6 );
+
+    And ( a = x, b = y, out = tmp7 );
+    And ( a = tmp7, b = z, out = out7 );
+
+    Mux16 ( a = false, b = a, sel = out0, out = ans0 );
+    Mux16 ( a = false, b = b, sel = out1, out = ans1 );
+    Mux16 ( a = false, b = c, sel = out2, out = ans2 );
+    Mux16 ( a = false, b = d, sel = out3, out = ans3 );
+    Mux16 ( a = false, b = e, sel = out4, out = ans4 );
+    Mux16 ( a = false, b = f, sel = out5, out = ans5 );
+    Mux16 ( a = false, b = g, sel = out6, out = ans6 );
+    Mux16 ( a = false, b = h, sel = out7, out = ans7 );
+
+    Or16 ( a = ans0, b = ans1, out = ans8 );
+    Or16 ( a = ans2, b = ans3, out = ans9 );
+    Or16 ( a = ans4, b = ans5, out = ans10 );
+    Or16 ( a = ans6, b = ans7, out = ans11 );
+    Or16 ( a = ans8, b = ans9, out = ans12 );
+    Or16 ( a = ans10, b = ans11, out = ans13 );
+    Or16 ( a = ans12, b = ans13, out = out );
+
+}
