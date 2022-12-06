@@ -15,4 +15,4 @@ To finish the basic gate as follows:
 - [x] dmux8way
 - [x] mux4way16
 - [x] mux8way16
-- [ ] or8way
+- [x] or8way
