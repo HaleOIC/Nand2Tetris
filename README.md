@@ -7,4 +7,5 @@ My total used time : （video time & lab time）
 
 - week1: 4h + 2.5h = 6.5h
 - week2: 1h + 3h  = 4h
+- week3: 1h + 2h = 3h
 
