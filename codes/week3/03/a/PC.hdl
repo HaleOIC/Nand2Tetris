@@ -1,0 +1,43 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+    // maybe we need to finish the task as the reverse sequence.
+    Mux16 ( a = in, b = false, sel = reset, out = selLoadValue );
+    Mux ( a = false, b = true, sel = reset, out = selLoadFlag );
+
+    // as long as the there is one flag set to true, the register's load will be set to true
+    Or ( a = inc, b = load, out = Or1 );
+    Or ( a = Or1, b = reset, out = loadReg );
+
+
+    // set the selected value.
+    Inc16 ( in = outVir, out = outInc );
+    Mux16 ( a = false, b = outInc, sel = inc, out = out1 );
+    Mux16 ( a = out1, b = in, sel = load, out = out2 );
+    Mux16 ( a = out2, b = false, sel = reset, out = inReg );
+
+
+    // put the selected value and load flag to the register
+    Register ( in = inReg, load = loadReg, out = outVir );
+
+    // output the value.
+    And16 ( a = outVir, b = true, out = out );
+
+
+}
