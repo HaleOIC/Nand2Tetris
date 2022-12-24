@@ -10,4 +10,7 @@ My total used time : （video time & lab time）
 - week3: 1h + 2h = 3h
 - week4: 1.5h + 1.5h = 3h
 - week5: 2.5h + 3.5h = 6h
+- week6: 1.5h + 7h = 8.5h
+
+Part I total time: 31h
 
