@@ -1,0 +1,1 @@
+cmd>>Assembler.exe  ./( file needed to assemble position )  ./( file needed to store position)
