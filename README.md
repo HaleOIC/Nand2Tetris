@@ -1,5 +1,5 @@
 # Build-a-tiny-computer
-This repository contains the course &lt; Build a Modern Computer from First Principles: Nand to Tetris> part I and II.
+This repository contains the course &lt; Build a Modern Computer from First Principles: Nand to Tetris> part I 
 
 Task standard need time : 40 h
 
