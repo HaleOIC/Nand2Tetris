@@ -14,3 +14,7 @@ My total used time : （video time & lab time）
 
 Part I total time: 31h
 
+### Feedback
+
+![](imgs/img1.png)
+
