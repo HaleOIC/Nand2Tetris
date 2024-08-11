@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "JackCompiler",
             "projectName": "JackCompiler_81ba1e30",
-            "args": "../ConvertToBin"
+            "args": "../Pong"
         }
     ]
 }

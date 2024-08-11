@@ -9,8 +9,10 @@ push argument 1
 pop this 1
 push argument 2
 pop this 2
-call draw 0
+push pointer 0
+call Square.draw 1
 pop temp 0
+push pointer 0
 return
 push pointer 0
 return
@@ -85,16 +87,19 @@ lt
 and
 not
 if-goto IF_TRUE0
-call erase 0
+push pointer 0
+call Square.erase 1
 pop temp 0
 push this 2
 push constant 2
 add
 pop this 2
-call draw 0
+push pointer 0
+call Square.draw 1
 pop temp 0
 goto IF_FALSE0
 label IF_TRUE0
+label IF_FALSE0
 push constant 0
 return
 push constant 0
@@ -108,16 +113,19 @@ push constant 2
 gt
 not
 if-goto IF_TRUE1
-call erase 0
+push pointer 0
+call Square.erase 1
 pop temp 0
 push this 2
 push constant 2
 sub
 pop this 2
-call draw 0
+push pointer 0
+call Square.draw 1
 pop temp 0
 goto IF_FALSE1
 label IF_TRUE1
+label IF_FALSE1
 push constant 0
 return
 push constant 0
@@ -168,6 +176,7 @@ call Screen.drawRectangle 4
 pop temp 0
 goto IF_FALSE2
 label IF_TRUE2
+label IF_FALSE2
 push constant 0
 return
 push constant 0
@@ -220,6 +229,7 @@ call Screen.drawRectangle 4
 pop temp 0
 goto IF_FALSE3
 label IF_TRUE3
+label IF_FALSE3
 push constant 0
 return
 push constant 0
@@ -270,6 +280,7 @@ call Screen.drawRectangle 4
 pop temp 0
 goto IF_FALSE4
 label IF_TRUE4
+label IF_FALSE4
 push constant 0
 return
 push constant 0
@@ -322,6 +333,7 @@ call Screen.drawRectangle 4
 pop temp 0
 goto IF_FALSE5
 label IF_TRUE5
+label IF_FALSE5
 push constant 0
 return
 push constant 0

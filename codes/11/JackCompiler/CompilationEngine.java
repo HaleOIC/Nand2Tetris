@@ -36,6 +36,9 @@ public class CompilationEngine {
         } else if (classLevelSymbolTable.contains(symbol)) {
             kind = classLevelSymbolTable.kindOf(symbol);
             index = classLevelSymbolTable.indexOf(symbol);
+        } else if (symbol.equals("this")) {
+            kind = "pointer";
+            index = 0;
         } else {
             return false;
         }
@@ -53,6 +56,9 @@ public class CompilationEngine {
                 break;
             case "field":
                 segment = "this";
+                break;
+            case "pointer":
+                segment = "pointer";
                 break;
             default:
                 return false;
@@ -175,7 +181,7 @@ public class CompilationEngine {
         subroutineName = jt.identifier();
         jt.advance();
         jt.advance(); // (
-        int nargs = compileParameterList();
+        compileParameterList();
         jt.advance(); // )
         jt.advance(); // {
 
@@ -187,7 +193,7 @@ public class CompilationEngine {
         if (keyword.equals("constructor")) {
             // calling memory.alloc n to allocate memory for arguments
             // and set pointer 0 to alloc's return value
-            writer.writePush("constant", nargs);
+            writer.writePush("constant", classLevelSymbolTable.varCount("field"));
             writer.writePlainText("call Memory.alloc 1");
             writer.writePop("pointer", 0);
 
@@ -277,7 +283,6 @@ public class CompilationEngine {
             }
             jt.advance(); 
         } catch (IllegalArgumentException e) {
-            System.err.println(e);
         }
     }
 
@@ -364,6 +369,7 @@ public class CompilationEngine {
         // Case 1: with []
         if (symbol.equals("[")) {
             jt.advance();
+            ops.push("[");
             writeSymbol(varName, true);
             compileExpression();
             writer.writePlainText("add");
@@ -380,9 +386,7 @@ public class CompilationEngine {
             // right hand expression
             compileExpression();
 
-            // fixed six sentences
-            writer.writePop("pointer", 1);
-            writer.writePush("that", 0);
+            // fixed four sentences
             writer.writePop("temp", 0);
             writer.writePop("pointer", 1);
             writer.writePush("temp", 0);
@@ -456,7 +460,7 @@ public class CompilationEngine {
         try {
             keyword = jt.keyWord();
             if (!keyword.equals("else")) {
-                return;
+                throw new IllegalArgumentException("Current token is not else");
             }
             jt.advance();
         
@@ -587,13 +591,20 @@ public class CompilationEngine {
         // maybe more term
         while (true) {
             String symbol = jt.symbol().trim();
+            // maybe this symbol is ]
+            if (symbol.equals("]")) {
+                ops.popUntilLastBracket();
+                return;
+            }
             // maybe this symbol is )
+
             if (symbol.equals(")")) {
                 if (!ops.contains("(")) {
                     break;
                 }
                 ops.popUntil();
                 jt.advance();
+                continue;
             }
 
             // if the next string is not an operation
@@ -623,10 +634,16 @@ public class CompilationEngine {
                     writer.writePush("constant", Integer.parseInt(jt.stringVal()));
                     jt.advance();
                     break;
-                // case "stringConstant":
-                //     writer.write(String.format("<stringConstant>%s</stringConstant>\n", jt.stringVal().substring(1).substring(0, jt.stringVal().length() - 2)));
-                //     jt.advance();
-                //     break;
+                case "stringConstant":
+                    String str = jt.stringVal();
+                    writer.writePush("constant", str.length());
+                    writer.writeCall("String.new", 1);
+                    for (int i = 0; i < str.length(); i++) {
+                        writer.writePush("constant", (int)str.charAt(i));
+                        writer.writeCall("String.appendChar", 2);
+                    }
+                    jt.advance();
+                    break;
                 case "keyword":
                     String keyword = jt.keyWord();
                     switch (keyword) {
@@ -647,12 +664,14 @@ public class CompilationEngine {
                 case "identifier":
                     String identifier = jt.identifier();
                     if (jt.nextString().equals("[")) {
+                        ops.push("[");
                         writeSymbol(identifier, true);
                         jt.advance(); jt.advance();
                         compileExpression();
                         writer.writeArithmetic("add");
                         writer.writePop("pointer", 1);
                         writer.writePush("that", 0);
+                        jt.advance();
                     } else if (jt.nextString().equals("(") || jt.nextString().equals(".")) {
                         compileSubroutineCall(); // Assume this starts right after identifier
                     } else {
@@ -690,11 +709,23 @@ public class CompilationEngine {
             String identifier = jt.identifier();
             jt.advance();
 
+            boolean addOne = false; 
             // maybe more
             try {
                 String symbol = jt.symbol();
                 if (symbol.equals(".")) {
                     jt.advance();
+
+                    // push first identifier into stack
+                    if (classLevelSymbolTable.contains(identifier) || subroutineLevelSymbolTable.contains(identifier)) {
+                        addOne = true;
+                        writeSymbol(identifier, true);
+                        if (classLevelSymbolTable.contains(identifier)) {
+                            identifier = classLevelSymbolTable.typeOf(identifier);
+                        } else {
+                            identifier = subroutineLevelSymbolTable.typeOf(identifier);
+                        }
+                    }
 
                     // subroutineName
                     String subroutineName = jt.identifier();
@@ -704,6 +735,12 @@ public class CompilationEngine {
             } catch (IllegalArgumentException e) {
             }
 
+            if (!identifier.contains(".")) {
+                addOne = true;
+                writer.writePush("pointer", 0);
+                identifier = className + "." + identifier;
+            }
+
             // (
             String symbol = jt.symbol();
             if (!symbol.equals("(")) {
@@ -711,6 +748,8 @@ public class CompilationEngine {
             }
             jt.advance();
 
+            OpStack temp = this.ops;
+            this.ops = new OpStack(writer);
             // expressionList
             int nargs = compileExpressionList();
 
@@ -720,6 +759,10 @@ public class CompilationEngine {
                 throw new IllegalArgumentException("Current token is not )");
             }
             jt.advance();
+            this.ops = temp;
+            if (addOne) {
+                nargs += 1;
+            }
             writer.writeCall(identifier, nargs);
         } catch (IllegalArgumentException e) {
         }

@@ -30,11 +30,14 @@ public class OpStack {
 
     public void push(String op) {
         // when push a new operator, pop the previous operator and write the operation
-        if (op.equals("(")) {
+        if (op.equals("(") || op.equals("[")) {
             stack.push(op);
             return;
         }
         while (!stack.isEmpty() && getPrecedence(op) < getPrecedence(stack.peek())) {
+            if (stack.peek().equals("[") || stack.peek().equals("(")) {
+                break;
+            }
             String prevOp = stack.pop();
             if (prevOp.equals("neg")) {
                 writer.writeArithmetic("neg");
@@ -78,6 +81,23 @@ public class OpStack {
             return;
         }
         stack.pop(); // Pop the left parenthesis
+    }
+
+    public void popUntilLastBracket() {
+        while (!stack.isEmpty() && !stack.peek().equals("[")) {
+            String prevOp = stack.pop();
+            if (prevOp.equals("neg")) {
+                writer.writeArithmetic("neg");
+            } else if (prevOp.equals("~")) {
+                writer.writeArithmetic("not");
+            } else {
+                writeOperation(prevOp);
+            }
+        }
+        if (stack.isEmpty()) {
+            return;
+        }
+        stack.pop();
     }
 
     public void clear() {

@@ -41,13 +41,13 @@ public class SymbolTable {
     /// return the number of variables of a certain kind
     public int varCount(String kind) {
         switch (kind) {
-            case "STATIC":
+            case "static":
                 return staticIndex;
-            case "FIELD":
+            case "field":
                 return thisIndex;
-            case "ARG":
+            case "argument":
                 return argumentIndex;
-            case "VAR":
+            case "var":
                 return localIndex;
             default:
                 break;
