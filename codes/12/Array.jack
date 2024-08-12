@@ -2,7 +2,6 @@
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
 // File name: projects/12/Array.jack
-
 /**
  * Represents an array.
  * In the Jack language, arrays are instances of the Array class.
@@ -12,12 +11,14 @@
  * data types.
  */
 class Array {
-
     /** Constructs a new Array of the given size. */
     function Array new(int size) {
+    	return Memory.alloc(size);
     }
 
-    /** Disposes this array. */
+    /** De-allocates the array and frees its space. */
     method void dispose() {
+    	do Memory.deAlloc(this);
+    	return;
     }
 }

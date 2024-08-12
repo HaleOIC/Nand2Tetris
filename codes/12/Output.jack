@@ -2,7 +2,6 @@
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
 // File name: projects/12/Output.jack
-
 /**
  * A library of functions for writing text on the screen.
  * The Hack physical screen consists of 512 rows of 256 pixels each.
@@ -19,8 +18,17 @@ class Output {
     // Character map for displaying characters
     static Array charMaps; 
 
+    static int cursorX, cursorY;
+    
+    static Array screen;
+
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
+        let screen = 16384;
+        let cursorX = 0;
+        let cursorY = 0;
+        do Output.initMap();
+        return;
     }
 
     // Initializes the character map array
@@ -173,31 +181,96 @@ class Output {
         return charMaps[c];
     }
 
-    /** Moves the cursor to the j-th column of the i-th row,
-     *  and erases the character displayed there. */
+    /** Moves the cursor to the jth column of the ith row,
+     *  and erases the character that was there. */
     function void moveCursor(int i, int j) {
+        let cursorX = j;
+        let cursorY = i;
+        return;
     }
 
-    /** Displays the given character at the cursor location,
-     *  and advances the cursor one column forward. */
+    /** Prints c at the cursor location and advances the cursor one
+     *  column forward. */
     function void printChar(char c) {
+        var Array map;
+        var int address,mask,bitmap,i;
+        
+        // Get the character bitmap
+        let map = Output.getMap(c);
+        let address = (cursorY*32*11) + (cursorX/2);
+        let mask = cursorX & 1;
+        
+        // Print the character
+        let i = 0;
+        while( i < 11 ) {
+            let bitmap = map[i];
+            if( mask = 1 ) {
+                let bitmap = bitmap * 256;
+                let screen[address] = screen[address] & (-1 & 255) | bitmap;
+            }else{
+                let screen[address] = screen[address] & 255 | bitmap;
+            }
+            
+            let address = address + 32;
+            let i = i + 1;
+        }
+        
+        // Advance the cursor
+        if( cursorX = 63 ) {
+            do Output.println();
+        }
+        else {
+            do Output.moveCursor(cursorY,cursorX+1);
+        }
+        
+        return;
     }
 
-    /** displays the given string starting at the cursor location,
-     *  and advances the cursor appropriately. */
+    /** Prints s starting at the cursor location, and advances the
+     *  cursor appropriately. */
     function void printString(String s) {
+        var int i;
+        let i = 0;
+        while( i < s.length() ) {
+            do Output.printChar(s.charAt(i));
+            let i = i + 1;
+        }
+        return;
     }
 
-    /** Displays the given integer starting at the cursor location,
-     *  and advances the cursor appropriately. */
+    /** Prints i starting at the cursor location, and advances the
+     *  cursor appropriately. */
     function void printInt(int i) {
+        var String s;
+        let s = String.new(10);
+        do s.setInt(i);
+        do Output.printString(s);
+        do s.dispose();
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        if( cursorY < 22 ) {
+            do Output.moveCursor(cursorY+1,0);
+        }else {
+            do Output.moveCursor(0,0);
+        }
+        return;
     }
 
+    
     /** Moves the cursor one column back. */
     function void backSpace() {
+        if( cursorX = 0 ) {
+            if( ~(cursorY = 0) ) {
+                do Output.moveCursor((cursorY-1),63);
+            }
+        }
+        else {
+            do Output.moveCursor(cursorY,(cursorX-1));
+        }
+        
+        return;
     }
 }

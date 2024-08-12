@@ -2,7 +2,6 @@
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
 // File name: projects/12/String.jack
-
 /**
  * Represents character strings. In addition for constructing and disposing
  * strings, the class features methods for getting and setting individual
@@ -11,54 +10,148 @@
  * string-oriented operations.
  */
 class String {
+    field int length, maxLen;
+    field Array chars;
 
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+        if (maxLength < 1) {
+            let maxLength = 1;
+        }
+
+        let length = 0;
+        let maxLen = maxLength;
+        let chars = Array.new(maxLength);
+        return this;
     }
 
     /** Disposes this string. */
     method void dispose() {
+        do chars.dispose();
+        return;
     }
 
     /** Returns the current length of this string. */
     method int length() {
+        return length;
     }
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
+        return chars[j];
     }
 
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
+        let chars[j] = c;
+        return;
     }
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
+        if (length < maxLen) {
+            let chars[length] = c;
+            let length = length + 1;
+        }
+        return this;
     }
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
+        if (length > 0) {
+            let length = length - 1;
+        }
+        return;
     }
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
+        var int intVal, index;
+        var boolean neg;
+
+        let intVal = 0;
+
+        //check if first char is '-'
+        if((length > 0) & (chars[0] = 45)){
+            let neg = true;
+            let index = 1;
+        }else{
+            let neg = false;
+            let index = 0;
+        }
+
+        while((index < length) & String.isDigit(chars[index])){
+            let intVal = (intVal * 10) + String.charToDigit(chars[index]);
+            let index = index + 1;
+        }
+
+        if(neg){
+            return -intVal;
+        }else{
+            return intVal;
+        }
     }
+
+    
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+        let length = 0;
+
+        if(val < 0){
+            let val = -val;
+            do appendChar(45);
+        }
+
+        do setIntHelper(val);
+
+        return;
+    }
+
+    method void setIntHelper(int number){
+        var int nextNum;
+
+        if(number < 10){
+            do appendChar(String.digitToChar(number));
+        }else{
+            let nextNum = number / 10;
+            do setIntHelper(nextNum);
+            do appendChar(String.digitToChar(number - (nextNum * 10)));
+        }
+
+        return;
     }
 
     /** Returns the new line character. */
     function char newLine() {
+        return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+        return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+        return 34;
+    }
+
+
+    /** 48 <= ascii(c) <= 57 is digit*/
+    function boolean isDigit(char c){
+        return ~(c < 48) & ~(c > 57);
+    }
+
+    /** must be called after String.isDigit */
+    function int charToDigit(char c){
+        return c - 48;
+    }
+
+    /** must have 0<= d <= 9*/
+    function char digitToChar(int d){
+        return d + 48;
     }
 }
